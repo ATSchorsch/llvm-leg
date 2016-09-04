@@ -188,6 +188,65 @@ def CMP : InstLEG<(outs), (ins GRRegs:$lhs, GRRegs:$rhs),
 // Load/Store Instructions
 //===----------------------------------------------------------------------===//
 
+def LOADi  : ALUInst<0b1101,(outs GRRegs:$dst), (ins i32imm:$imm),
+                   "loadi $dst, $imm",
+                   [(set i32:$dst, imm:$imm)]> {
+  bits<4> dst;
+  bits<16> imm;
+  let Inst{15-12} = dst;
+  let Inst{11-0}  = imm{11-0};
+  let Inst{19-16} = imm{15-12};
+  let Inst{20} = 0;
+  let Inst{25} = 1;
+}
+
+
+def LOADii  : ALUInst<0b1100,(outs GRRegs:$dst), (ins memaddr:$imm),
+                   "loadii $dst, $imm",
+                   [(set i32:$dst, addr:$imm)]> {
+  bits<4> dst;
+  bits<16> imm;
+  let Inst{15-12} = dst;
+  let Inst{11-0}  = imm{11-0};
+  let Inst{19-16} = imm{15-12};
+  let Inst{20} = 0;
+  let Inst{25} = 1;
+}
+
+
+def LDR  : InstLEG<(outs GRRegs:$val), (ins GRRegs:$addr),
+                   "ldr $val, $addr",
+                   [(set i32:$val, (load i32:$addr))]> {
+  bits<4> val;
+  bits<16> addr;
+  let Inst{27-25} = 0b010;
+  let Inst{24} = 1; // not indexed
+  let Inst{23} = 1; // add ofset
+  let Inst{22} = 0;
+  let Inst{21} = 0; // no writeback
+  let Inst{20} = 1; // load
+  let Inst{19-16} = addr{15-12};
+  let Inst{15-12} = val;
+  let Inst{11-0} = addr{11-0};
+}
+
+def STR : InstLEG<(outs), (ins GRRegs:$val, GRRegs:$addr),
+                  "str $val, $addr",
+                  [(store i32:$val, i32:$addr)]> {
+  bits<16> addr;
+  bits<4> val;
+  let Inst{27-25} = 0b010;
+  let Inst{24} = 1; // not indexed
+  let Inst{23} = 1; // add ofset
+  let Inst{22} = 0;
+  let Inst{21} = 0; // no writeback
+  let Inst{20} = 0; // store
+  let Inst{19-16} = addr{15-12};
+  let Inst{15-12} = val;
+  let Inst{11-0} = addr{11-0};
+}
+
+/*
 def LDR  : InstLEG<(outs GRRegs:$val), (ins memsrc:$addr),
                    "ldr $val, $addr",
                    [(set i32:$val, (load addr:$addr))]> {
@@ -218,8 +277,7 @@ def STR : InstLEG<(outs), (ins GRRegs:$val, memsrc:$addr),
   let Inst{19-16} = addr{15-12};
   let Inst{15-12} = val;
   let Inst{11-0} = addr{11-0};
-}
-
+}*/
 //===----------------------------------------------------------------------===//
 // Return Instructions
 //===----------------------------------------------------------------------===//

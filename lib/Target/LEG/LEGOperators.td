@@ -60,6 +60,11 @@ def memsrc : Operand<i32> {
   let EncoderMethod = "getMemSrcValue";
 }
 
+def memaddr : Operand<iPTR>  {
+	let MIOperandInfo = (ops iPTR);
+	let EncoderMethod = "getMemSrcValue";
+}
+
 def i32imm_lo : Operand<i32>, ImmLeaf<i32, [{
   return Imm >= 0 && Imm < 65536;
 }]>;
